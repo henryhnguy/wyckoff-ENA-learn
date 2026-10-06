@@ -6,6 +6,7 @@ import requests
 import pandas as pd
 import plotly.graph_objects as go
 from roadmap import DAYS
+from illustrations import GALLERY
 
 PROGRESS_FILE = Path(__file__).parent / "progress.json"
 
@@ -35,7 +36,7 @@ st.caption("Lộ trình dễ hiểu, ví dụ thực tế, áp dụng cho token 
 total = len(DAYS)
 st.progress(len(done) / total, text=f"Tiến độ: {len(done)}/{total} ngày hoàn thành")
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📚 Lộ trình", "📝 Bài học hôm nay", "🎯 Case study ENA", "📊 Chart ENA", "❓ Quiz", "⏱ Học 15 phút"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["📚 Lộ trình", "📝 Bài học hôm nay", "🎯 Case study ENA", "📊 Chart ENA", "❓ Quiz", "⏱ Học 15 phút", "🖼 Minh họa"])
 
 with tab1:
     weeks = {"Tuần 1 (Ngày 1–7)": DAYS[0:7], "Tuần 2 (Ngày 8–14)": DAYS[7:14],
@@ -159,6 +160,14 @@ with tab6:
             time.sleep(1)
         placeholder.success("⏰ Hết giờ! Ghi chú lại 1 điều bạn đã hiểu hôm nay nhé.")
         st.balloons()
+
+with tab7:
+    st.subheader("🖼 Thư viện chart minh họa")
+    choice = st.selectbox("Chọn hình minh họa:", [g[0] for g in GALLERY])
+    for name, make_fig, text in GALLERY:
+        if name == choice:
+            st.plotly_chart(make_fig(), use_container_width=True)
+            st.markdown(text)
 
 st.sidebar.success(f"✅ {len(done)}/{total} ngày hoàn thành")
 st.sidebar.markdown("Chạy app: `streamlit run app.py` trong thư mục wyckoff-app")
