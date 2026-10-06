@@ -7,6 +7,26 @@ import pandas as pd
 import plotly.graph_objects as go
 from roadmap import DAYS
 from illustrations import GALLERY
+from ena_charts import ENA_CHARTS
+
+
+def ena_figure(interval, limit):
+    """Tải dữ liệu ENA/USDT từ Binance và vẽ nến + volume."""
+    r = requests.get(
+        "https://api.binance.com/api/v3/klines",
+        params={"symbol": "ENAUSDT", "interval": interval, "limit": limit},
+        timeout=10,
+    )
+    data = r.json()
+    df = pd.DataFrame(data, columns=["t", "open", "high", "low", "close", "volume", "ct", "qv", "n", "tb", "tq", "i"])
+    df["t"] = pd.to_datetime(df["t"], unit="ms")
+    df[["open", "high", "low", "close", "volume"]] = df[["open", "high", "low", "close", "volume"]].astype(float)
+    fig = go.Figure(data=[go.Candlestick(x=df["t"], open=df["open"], high=df["high"], low=df["low"], close=df["close"])])
+    fig.add_trace(go.Bar(x=df["t"], y=df["volume"], name="Volume", marker_color="orange", opacity=0.5, yaxis="y2"))
+    fig.update_layout(title=f"ENA/USDT — {interval}", xaxis_rangeslider_visible=False,
+                      yaxis=dict(title="Giá"), yaxis2=dict(title="Volume", overlaying="y", side="right"),
+                      height=450)
+    return fig
 
 PROGRESS_FILE = Path(__file__).parent / "progress.json"
 
@@ -66,6 +86,15 @@ with tab2:
     st.subheader(f"Ngày {d['day']}: {d['title']}")
     st.markdown(d["lesson"])
     st.info(f"**Ví dụ ENA:** {d['example']}")
+    st.markdown("#### 📊 Chart ENA cho bài học này")
+    cfg = ENA_CHARTS.get(d["day"])
+    if cfg:
+        interval, limit, guide = cfg
+        try:
+            st.plotly_chart(ena_figure(interval, limit), use_container_width=True)
+            st.caption(f"👉 **Hướng dẫn đọc chart:** {guide}")
+        except Exception as e:
+            st.error(f"Không tải được dữ liệu ENA: {e}")
     note = st.text_area("Ghi chú cá nhân:", value=notes.get(str(d["day"]), ""), key=f"note{d['day']}")
     notes[str(d["day"])] = note
     progress["notes"] = notes
@@ -112,19 +141,7 @@ with tab4:
     interval = col1.selectbox("Khung thời gian:", ["1d", "4h", "1h", "15m"], index=0)
     limit = col2.selectbox("Số nến:", [100, 300, 500], index=1)
     try:
-        r = requests.get(
-            "https://api.binance.com/api/v3/klines",
-            params={"symbol": "ENAUSDT", "interval": interval, "limit": limit},
-            timeout=10,
-        )
-        data = r.json()
-        df = pd.DataFrame(data, columns=["t", "open", "high", "low", "close", "volume", "ct", "qv", "n", "tb", "tq", "i"])
-        df["t"] = pd.to_datetime(df["t"], unit="ms")
-        df[["open", "high", "low", "close", "volume"]] = df[["open", "high", "low", "close", "volume"]].astype(float)
-        fig = go.Figure(data=[go.Candlestick(x=df["t"], open=df["open"], high=df["high"], low=df["low"], close=df["close"])])
-        fig.update_layout(title="ENA/USDT", xaxis_title="Thời gian", yaxis_title="Giá", xaxis_rangeslider_visible=False)
-        st.plotly_chart(fig, use_container_width=True)
-        st.bar_chart(df.set_index("t")["volume"])
+        st.plotly_chart(ena_figure(interval, limit), use_container_width=True)
         st.caption("Dùng chart này để luyện gán phase Wyckoff: tích lũy / tăng / phân phối / giảm.")
     except Exception as e:
         st.error(f"Không tải được dữ liệu: {e}")

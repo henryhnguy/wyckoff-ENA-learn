@@ -1,0 +1,36 @@
+# -*- coding: utf-8 -*-
+"""Cấu hình chart ENA cho từng ngày học: interval, số nến, hướng dẫn đọc chart."""
+# day -> (interval, limit, guide)
+
+ENA_CHARTS = {
+    1: ("1d", 300, "Nhìn tổng thể: ENA tăng khi nào, giảm khi nào? Tự hỏi 'ở vùng này cung hay cầu đang thắng?'"),
+    2: ("1d", 300, "Tự gán phase cho ENA: đoạn nào là tích lũy, tăng, phân phối, giảm? So với lý thuyết 4 phase."),
+    3: ("1d", 200, "Tìm 1 vùng sideway sau downtrend: có thấy cú bán tháo + hồi + test đáy không?"),
+    4: ("1d", 200, "Tìm 1 vùng sideway sau uptrend: có thấy cú mua cao trào + vượt đỉnh giả rồi xả không?"),
+    5: ("4h", 200, "So volume với biên độ nến: tìm đoạn volume lớn nhưng giá dậm chân (hấp thụ)."),
+    6: ("4h", 200, "Tìm nến đâm thủng biên (đáy hoặc đỉnh cũ) rồi bật/rơi nhanh: đó là Spring hay Upthrust?"),
+    7: ("1d", 300, "Bài tập vẽ: dùng chuột kéo thả để đo biên TR, đánh dấu SC/BC bằng ghi chú của riêng bạn."),
+    8: ("1d", 200, "So 2 vùng sideway khác nhau: vùng nào có đáy sau cao hơn + volume giảm? Vùng đó đáng tin hơn."),
+    9: ("4h", 300, "Sau nhịp tăng, xem các nhịp chỉnh trong range: volume thấp (tốt) hay volume lớn (xấu)?"),
+    10: ("1d", 300, "Tìm đoạn tin xấu + volume lớn + rút chân: đó có thể là lúc Composite Man gom hàng."),
+    11: ("1w", 100, "Khung tuần: xác định xu hướng lớn trước, rồi mới zoom xuống khung nhỏ trong các bài sau."),
+    12: ("1d", 200, "Vẽ biên TR: tìm 2–3 đỉnh gần bằng nhau (kháng cự) và 2–3 đáy gần bằng nhau (hỗ trợ)."),
+    13: ("4h", 200, "Tìm nến rút chân dài tại hỗ trợ và nến nhấn chìm tại kháng cự — vị trí của nến mới là điều quan trọng."),
+    14: ("1d", 300, "Ôn tập: cuộn lại lịch sử ENA, tự gán nhãn phase cho từng đoạn như 1 bài kiểm tra."),
+    15: ("4h", 200, "Tìm điểm breakout + retest thành công: đo chiều cao TR để ước lượng mục tiêu TP."),
+    16: ("1d", 100, "Tính thử: với tài khoản của bạn, 2% rủi ro = bao nhiêu $? Entry/SL trên chart này cho position size nào?"),
+    17: ("1d", 200, "So chart spot với funding: ENA sideway + (nếu có) funding âm = setup long đẹp."),
+    18: ("4h", 200, "Quan sát: khi giá đi ngang mà volume/OI thay đổi — tiền đang vào đặt cược hướng nào?"),
+    19: ("1d", 300, "Lịch sử dài: tìm các nhịp pump mạnh nhất của ENA và xem trước đó có vùng nén nào không."),
+    20: ("4h", 200, "Hiện tại: ENA đang ở phase nào? Có TR không? Ghi kịch bản long/short/chờ vào ghi chú."),
+    21: ("1d", 200, "Viết plan: nếu ENA về lại biên dưới TR thì làm gì? Nếu phá vỡ lên thì làm gì? Chuẩn bị trước."),
+    22: ("4h", 100, "Luyện 15 phút: gán phase hiện tại của ENA trong 1 câu và ghi vào ghi chú cá nhân."),
+    23: ("1d", 300, "Backtest mắt: tìm các breakout cũ, breakout nào có volume lớn thì sóng sau mạnh hơn?"),
+    24: ("1d", 200, "Tìm vùng hợp lưu: support TR trùng EMA/round number — đó là vùng LPS chất lượng cao."),
+    25: ("4h", 200, "Tìm setup short cũ: vượt đỉnh giả + xả + hồi yếu lên kháng cự (LPSY)."),
+    26: ("1d", 300, "Backtest: tìm 5 vùng TR cũ, ghi lại spring/upthrust + volume breakout + sóng sau đó bao nhiêu %."),
+    27: ("4h", 100, "Áp checklist: đối chiếu từng mục với tình trạng ENA hiện tại, đủ điều kiện mới vào lệnh."),
+    28: ("1d", 300, "Nhìn lại các đỉnh FOMO trong lịch sử ENA: mua ở đó thì hậu quả ra sao? Ghi nhớ cảm giác này."),
+    29: ("1d", 200, "Lập kế hoạch 30 ngày tới: paper trade ENA theo checklist, ghi lại mọi lệnh vào ghi chú."),
+    30: ("1d", 300, "Tổng kết: cuộn toàn bộ lịch sử ENA, kể lại câu chuyện Wyckoff của ENA từ đầu đến nay."),
+}
