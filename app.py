@@ -10,17 +10,55 @@ from illustrations import GALLERY
 from ena_charts import ENA_CHARTS
 
 
-def ena_figure(interval, limit):
-    """Tải dữ liệu ENA/USDT từ Binance và vẽ nến + volume."""
+CB_GRAN = {"15m": 900, "1h": 3600, "4h": 14400, "1d": 86400, "1w": 604800}
+KR_INT = {"15m": 15, "1h": 60, "4h": 240, "1d": 1440, "1w": 10080}
+
+
+def _fetch_klines(interval, limit):
+    """Lấy nến ENA, thử lần lượt: binance.vision -> coinbase -> kraken."""
+    # 1. Binance market-data mirror (không bị chặn geo)
+    try:
+        r = requests.get(
+            "https://data-api.binance.vision/api/v3/klines",
+            params={"symbol": "ENAUSDT", "interval": interval, "limit": limit},
+            timeout=10,
+        )
+        data = r.json()
+        if isinstance(data, list) and data:
+            return pd.DataFrame(data, columns=["t", "open", "high", "low", "close", "volume", "ct", "qv", "n", "tb", "tq", "i"])
+    except Exception:
+        pass
+    # 2. Coinbase: [time, low, high, open, close, volume]
+    try:
+        r = requests.get(
+            "https://api.exchange.coinbase.com/products/ENA-USD/candles",
+            params={"granularity": CB_GRAN[interval]},
+            timeout=10,
+        )
+        data = r.json()
+        if isinstance(data, list) and data:
+            df = pd.DataFrame(data, columns=["t", "low", "high", "open", "close", "volume"])
+            df["t"] = pd.to_datetime(df["t"], unit="s")
+            return df[["t", "open", "high", "low", "close", "volume"]].tail(min(limit, 300))
+    except Exception:
+        pass
+    # 3. Kraken: [time, open, high, low, close, vwap, volume, count]
     r = requests.get(
-        "https://api.binance.com/api/v3/klines",
-        params={"symbol": "ENAUSDT", "interval": interval, "limit": limit},
+        "https://api.kraken.com/0/public/OHLC",
+        params={"pair": "ENAUSD", "interval": KR_INT[interval]},
         timeout=10,
     )
-    data = r.json()
-    df = pd.DataFrame(data, columns=["t", "open", "high", "low", "close", "volume", "ct", "qv", "n", "tb", "tq", "i"])
-    df["t"] = pd.to_datetime(df["t"], unit="ms")
+    rows = r.json()["result"]["ENAUSD"]
+    df = pd.DataFrame(rows, columns=["t", "open", "high", "low", "close", "vwap", "volume", "count"])
+    df["t"] = pd.to_datetime(df["t"].astype(int), unit="s")
+    return df[["t", "open", "high", "low", "close", "volume"]].tail(limit)
+
+
+def ena_figure(interval, limit):
+    """Vẽ nến ENA + volume."""
+    df = _fetch_klines(interval, limit)
     df[["open", "high", "low", "close", "volume"]] = df[["open", "high", "low", "close", "volume"]].astype(float)
+    df = df.sort_values("t")
     fig = go.Figure(data=[go.Candlestick(x=df["t"], open=df["open"], high=df["high"], low=df["low"], close=df["close"])])
     fig.add_trace(go.Bar(x=df["t"], y=df["volume"], name="Volume", marker_color="orange", opacity=0.5, yaxis="y2"))
     fig.update_layout(title=f"ENA/USDT — {interval}", xaxis_rangeslider_visible=False,
